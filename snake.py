@@ -1,6 +1,7 @@
 import turtle
 import random
 import time
+import pygame
 
 # Setting up the game screen
 screen = turtle.Screen()
@@ -57,6 +58,13 @@ scoring.hideturtle()
 scoring.goto(0, 270)  
 scoring.write("Score: 0", align="center", font=("Courier", 24, "bold"))
 
+# Initialize pygame
+pygame.init()
+
+eat_sound = pygame.mixer.Sound("eat_sound.mp3")  # Sound for eating fruit
+game_over_sound = pygame.mixer.Sound("game_over.mp3")  # Sound for game over
+
+
 # Snake movement functions
 def snake_go_up():
     if snake.direction != "down":
@@ -98,10 +106,11 @@ screen.onkeypress(snake_go_right, "Right")
 
 # Main game loop
 while True:
-    screen.update()  
+    screen.update()  # Update the screen to reflect changes
     
     # Check if snake collides with fruit
     if snake.distance(fruit) < 20:
+
         # Move fruit to a new random location
         x = random.randint(-290, 270)
         y = random.randint(-240, 240)
@@ -111,12 +120,14 @@ while True:
         score += 1
         scoring.clear()
         scoring.write(f"Score: {score}", align="center", font=("Courier", 24, "bold"))
+        eat_sound.play()
+        
 
         # Add a new body segment to the snake
         new_segment = turtle.Turtle()
         new_segment.speed(0)
         new_segment.shape("square")
-        new_segment.color("green") 
+        new_segment.color("green")  # Color can vary based on segment
         new_segment.penup()
         snake_body.append(new_segment)
 
@@ -131,13 +142,14 @@ while True:
         x = snake.xcor()
         y = snake.ycor()
         snake_body[0].goto(x, y)
-
-    snake_move() 
+    snake_move()
     
     # Check for collisions with the border
     if snake.xcor() > 280 or snake.xcor() < -280 or snake.ycor() > 240 or snake.ycor() < -240:
+        game_over_sound.play()
+        
         # Game over sequence
-        time.sleep(1)
+        time.sleep(2)
         screen.clear()
         screen.bgcolor("turquoise")
         scoring.goto(0, 0)
@@ -154,9 +166,7 @@ while True:
             scoring.goto(0, 0)
             scoring.write(f"Game Over\nYour score is {score}", align="center", font=("Courier", 30, "bold"))
             break
-    
-    # Delay to control game speed
     time.sleep(delay)
-
+    
+pygame.quit()
 turtle.done()  
-
